@@ -1,0 +1,48 @@
+
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>TIA Presents: Cross the Valley of Death!</title>
+
+  <!-- Tailwind CSS (CDN) -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- React 18 (production UMD builds) -->
+  <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+  <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+
+  <!-- Babel (to allow JSX in the browser) -->
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+  <style>
+    :root{
+      --brand-primary:#0b2e6b;
+      --brand-primary-dark:#082356;
+      --brand-primary-soft:#e8f0fb;
+      --brand-accent:#f39200;
+      --brand-accent-soft:#fff4e5;
+      --brand-text:#0b1220;
+      --brand-border:#d9e2f2;
+    }
+    html,body{
+      margin:0;
+      padding:0;
+      background:linear-gradient(180deg,var(--brand-primary-soft),#fff);
+      color:var(--brand-text);
+    }
+    .tia-cardry{color:#fff}
+    .tia-btn-pri:hover{background:var(--brand-primary-dark)}
+    .tia-btn-outline{border:1px solid var(--brand-border);background:#fff;color:var(--brand-primary-dark)}
+  </style>
+</head>
+
+<body>
+  <!-- React will render into this div -->
+  <div id="tia-game-root" class="min-h-screen"></div>
+
+  <!-- Your React game code (in a separate file) -->
+<script type="text/babel" src="SRC/main.jsx"></script>
+</body>
+</html>
