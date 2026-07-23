@@ -1,5 +1,4 @@
 const {useMemo,useRef,useState} = React;
-import { generateCompanyName } from './companyNameGenerator.js';
 
 // ---------- UI primitives (self-contained; shadcn-like API) ----------
 const cx=(...p)=>p.filter(Boolean).join(" ");
@@ -143,7 +142,7 @@ function formatGameMoney(value) {
 
 function ValleyOfDeathGame({ companyName }){
   const [state,setState]=useState(INIT);
-  const [log,setLog]=useState([`Welcome to your new role as CEO of a small Australian Biotech company ${companyName}! Navigate ${companyName} through the drug discovery journey. Earlier stages are mor[...]
+  const [log,setLog]=useState([`Welcome to your new role as CEO of a small Australian Biotech company ${companyName}! Navigate ${companyName} through the drug discovery journey. Earlier stages are more likely to fail, but are cheaper. Be sure to continue to raise money via TIA vouchers, grants, seed capital or VC funding to keep going.`]);
   const [selectedAction,setSelectedAction]=useState(null);
   const [lastRoll,setLastRoll]=useState(null);
   const [fundingType,setFundingType]=useState(null);
@@ -156,8 +155,8 @@ function ValleyOfDeathGame({ companyName }){
     const d=document;
     return !!(d.fullscreenEnabled && el && (el.requestFullscreen||el.webkitRequestFullscreen||el.msRequestFullscreen));
   };
-  const enterNativeFS=async(el)=>{ if(el.requestFullscreen) return el.requestFullscreen(); if(el.webkitRequestFullscreen) return el.webkitRequestFullscreen(); if(el.msRequestFullscreen) return el.msRe[...]
-  const exitNativeFS=async()=>{ const d=document; if(d.exitFullscreen) return d.exitFullscreen(); if(d.webkitExitFullscreen) return d.webkitExitFullscreen(); if(d.msExitFullscreen) return d.msExitFull[...]
+  const enterNativeFS=async(el)=>{ if(el.requestFullscreen) return el.requestFullscreen(); if(el.webkitRequestFullscreen) return el.webkitRequestFullscreen(); if(el.msRequestFullscreen) return el.msRequestFullscreen(); };
+  const exitNativeFS=async()=>{ const d=document; if(d.exitFullscreen) return d.exitFullscreen(); if(d.webkitExitFullscreen) return d.webkitExitFullscreen(); if(d.msExitFullscreen) return d.msExitFullscreen(); };
 
   const addLog=(entry)=> setLog((l)=>[entry,...l].slice(0,200));
   const toggleFullscreen=async()=>{
@@ -292,11 +291,11 @@ function ValleyOfDeathGame({ companyName }){
         </header>
 
         <div className="grid sm:grid-cols-5 gap-3 mb-6">
-          <Card><CardHeader className="pb-2"><CardTitle className="text-xs">Cash available</CardTitle></CardHeader><CardContent><div className="text-2xl font-bold">{formatGameMoney(state.cash)}</div><[...]
-          <Card><CardHeader className="pb-2"><CardTitle className="text-xs">Time</CardTitle></CardHeader><CardContent><div className="font-semibold">Year {state.year} • Q{state.quarter}</div><div cl[...]
-          <Card><CardHeader className="pb-2"><CardTitle className="text-xs">Development stage</CardTitle></CardHeader><CardContent><div className="font-semibold">{curStage.name}</div><div className="t[...]
-          <Card><CardHeader className="pb-2"><CardTitle className="text-xs">Chance of successfully advancing</CardTitle></CardHeader><CardContent><div className="text-2xl font-extrabold">{Math.round(a[...]
-          <Card><CardHeader className="pb-2"><CardTitle className="text-xs">Dilution</CardTitle></CardHeader><CardContent><div className="text-2xl font-bold">{Math.round(state.dilution*100)}%</di[...]
+          <Card><CardHeader className="pb-2"><CardTitle className="text-xs">Cash available</CardTitle></CardHeader><CardContent><div className="text-2xl font-bold">{formatGameMoney(state.cash)}</div></CardContent></Card>
+          <Card><CardHeader className="pb-2"><CardTitle className="text-xs">Time</CardTitle></CardHeader><CardContent><div className="font-semibold">Year {state.year} • Q{state.quarter}</div><div className="text-xs" style={{color:BRAND.primaryDark}}>Elapsed: {quartersElapsed} quarters</div></CardContent></Card>
+          <Card><CardHeader className="pb-2"><CardTitle className="text-xs">Development stage</CardTitle></CardHeader><CardContent><div className="font-semibold">{curStage.name}</div><div className="text-xs" style={{color:BRAND.primaryDark}}>{`Gate cost ${formatGameMoney(curStage.costToTry)}`}</div></CardContent></Card>
+          <Card><CardHeader className="pb-2"><CardTitle className="text-xs">Chance of successfully advancing</CardTitle></CardHeader><CardContent><div className="text-2xl font-extrabold">{Math.round(advanceChance*100)}%</div>{lastRoll&&(<div className="text-xs" style={{color:BRAND.primaryDark}}>Last roll: {Math.round(lastRoll.p*100)}% - {lastRoll.success?"Success!":"Failure..."}</div>)}</CardContent></Card>
+          <Card><CardHeader className="pb-2"><CardTitle className="text-xs">Dilution</CardTitle></CardHeader><CardContent><div className="text-2xl font-bold">{Math.round(state.dilution*100)}%</div></CardContent></Card>
         </div>
 
         <div className="flex flex-wrap gap-2 mb-6">{STAGES.map((st,i)=>(<StageBadge key={st.key} idx={i} cur={state.stageIdx}/>))}</div>
@@ -313,7 +312,7 @@ function ValleyOfDeathGame({ companyName }){
             <CardHeader><CardTitle>GAME OVER: Insufficient funds. Time to dust off the CV.</CardTitle></CardHeader>
             <CardContent>
               <p className="text-sm" style={{color:"#7f1d1d"}}>
-                You cannot afford any action (min action cost {formatGameMoney(minActionCost)}) nor the next gate (cost {formatGameMoney(curStage.costToTry)}), or you cannot cover the quarterly b[...]
+                You cannot afford any action (min action cost {formatGameMoney(minActionCost)}) nor the next gate (cost {formatGameMoney(curStage.costToTry)}), or you cannot cover the quarterly burn (needs {formatGameMoney(currentBurn)}).
               </p>
               <div className="text-xs mt-1" style={{color:"#7f1d1d"}}>
                 Minimum action cost: {formatGameMoney(minActionCost)} • Gate cost: {formatGameMoney(curStage.costToTry)} • Burn this quarter: {formatGameMoney(currentBurn.toFixed(1))}
@@ -329,7 +328,7 @@ function ValleyOfDeathGame({ companyName }){
             <CardContent>
               <p className="text-sm" style={{color:"#065f46"}}>Congratulations, you crossed the Valley of Death!</p>
               <div className="text-xs mt-1" style={{color:"#065f46"}}>
-                Time: Year {state.year} • Q{state.quarter} • Elapsed {quartersElapsed} quarters • Remaining cash: {formatGameMoney(state.cash)} • Dilution: {Math.round(state.dilution*100)[...]
+                Time: Year {state.year} • Q{state.quarter} • Elapsed {quartersElapsed} quarters • Remaining cash: {formatGameMoney(state.cash)} • Dilution: {Math.round(state.dilution*100)}%
               </div>
               {justApproved && (<div className="text-xs mt-1" style={{color:"#065f46"}}>This is the end of the game. Well done!</div>)}
               <div className="mt-3"><Button onClick={restart}>Play Again</Button></div>
@@ -362,10 +361,10 @@ function ValleyOfDeathGame({ companyName }){
                   <div className="mt-4 p-3 rounded-xl border" style={{borderColor:BRAND.border,backgroundColor:BRAND.accentSoft}}>
                     <div className="text-sm font-semibold mb-2">Choose source of funding</div>
                     <div className="flex flex-wrap gap-2">
-                      <Button size="sm" variant={fundingType==="voucher"?"default":"outline"} style={{backgroundColor:fundingType==="voucher"?BRAND.accent:undefined}} onClick={()=>setFundingType("vouc[...]
-                      <Button size="sm" variant={fundingType==="seed"?"default":"outline"} style={{backgroundColor:fundingType==="seed"?BRAND.accent:undefined}} onClick={()=>setFundingType("seed")} di[...]
-                      <Button size="sm" variant={fundingType==="seriesA"?"default":"outline"} style={{backgroundColor:fundingType==="seriesA"?BRAND.accent:undefined}} onClick={()=>setFundingType("seri[...]
-                      <Button size="sm" variant={fundingType==="seriesB"?"default":"outline"} style={{backgroundColor:fundingType==="seriesB"?BRAND.accent:undefined}} onClick={()=>setFundingType("seri[...]
+                      <Button size="sm" variant={fundingType==="voucher"?"default":"outline"} style={{backgroundColor:fundingType==="voucher"?BRAND.accent:undefined}} onClick={()=>setFundingType("voucher")} disabled={approved||bankrupt} title="Apply for a TIA Pipeline Accelerator Voucher to subsidise access NCRIS-enabled research infrastructure">Pipeline Accelerator Voucher</Button>
+                      <Button size="sm" variant={fundingType==="seed"?"default":"outline"} style={{backgroundColor:fundingType==="seed"?BRAND.accent:undefined}} onClick={()=>setFundingType("seed")} disabled={approved||bankrupt} title="Early-stage investment for high-potential startups">Seed</Button>
+                      <Button size="sm" variant={fundingType==="seriesA"?"default":"outline"} style={{backgroundColor:fundingType==="seriesA"?BRAND.accent:undefined}} onClick={()=>setFundingType("seriesA")} disabled={approved||bankrupt} title="First major round of venture capital funding">Series A</Button>
+                      <Button size="sm" variant={fundingType==="seriesB"?"default":"outline"} style={{backgroundColor:fundingType==="seriesB"?BRAND.accent:undefined}} onClick={()=>setFundingType("seriesB")} disabled={approved||bankrupt} title="Subsequent rounds of venture capital funding">Series B</Button>
                     </div>
                   </div>
                 )}
@@ -412,6 +411,17 @@ function ValleyOfDeathGame({ companyName }){
 
 
 // --- LandingPage component inline ---
+const biotechPrefixes = ["Bio", "Gene", "Smart", "Gen", "Chimera", "RNA", "Neuro", "Medico", "Thera", "Cell", "CAR", "Nano", "Pharma", "Immuno", "Neuro", "Vita", "Sci", "Onco"];
+const biotechSuffixes = ["Gen", "Genics", "Genix", "Net", "AI", "Tech", "Group", "Labs", "Medica", "Vax", "Accelera", "Junction", "Solutions", "Systema", "Systems", "Hub", "Onyx", "Core", "Ome", "Omics", "Innovations", "Nate", "Nostics", "Therapeutics", "Sciences", "Dynamics", "Rx", "Works"];
+const biotechSuffix2 = ["Ltd", "Inc", "GmbH", "Australia", "", "", "", "", "", "", "", "", "Incorporated", "Industries", "LLP", "Foundation"];
+function generateCompanyName() {
+  const prefix = biotechPrefixes[Math.floor(Math.random() * biotechPrefixes.length)];
+  const suffix = biotechSuffixes[Math.floor(Math.random() * biotechSuffixes.length)];
+  const suffix2 = biotechSuffix2[Math.floor(Math.random() * biotechSuffix2.length)];
+  const base = `${prefix}${suffix}`;
+  return suffix2 ? `${base} ${suffix2}` : base;
+}
+
 function LandingPage({ setCompanyName }) {
   const [localName, setLocalCompanyName] = React.useState("");
   const handleGenerate = () => {
